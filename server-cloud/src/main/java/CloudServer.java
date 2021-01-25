@@ -15,6 +15,8 @@ public class CloudServer extends Thread {
 
     private static final Logger LOG = LoggerFactory.getLogger(CloudServer.class);
 
+    private static final int PORT = 8189;
+
     @Override
     public void run() {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -27,13 +29,13 @@ public class CloudServer extends Thread {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().addLast(
-                                    new ObjectDecoder(50 * 1024 * 1024, ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
+                                    new ObjectDecoder(Integer.MAX_VALUE, ClassResolvers.cacheDisabled(null)),
                                     new MainHandler()
                             );
                         }
                     });
-            ChannelFuture f = b.bind(8189).sync();
+            ChannelFuture f = b.bind(PORT).sync();
             LOG.debug("Сервер стартанул на порту 8189");
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {

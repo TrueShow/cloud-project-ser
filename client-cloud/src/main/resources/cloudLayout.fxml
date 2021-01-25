@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ClientHandler">
    <children>
       <Button fx:id="browseFile" layoutX="264.0" layoutY="315.0" mnemonicParsing="false" text="Browse..." />
       <TextField fx:id="pathToFile" layoutX="326.0" layoutY="315.0" />
