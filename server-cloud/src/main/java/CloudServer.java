@@ -19,7 +19,7 @@ public class CloudServer extends Thread {
 
     @Override
     public void run() {
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
+        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
@@ -29,8 +29,8 @@ public class CloudServer extends Thread {
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().addLast(
-                                    new ObjectEncoder(),
                                     new ObjectDecoder(Integer.MAX_VALUE, ClassResolvers.cacheDisabled(null)),
+                                    new ObjectEncoder(),
                                     new MainHandler()
                             );
                         }

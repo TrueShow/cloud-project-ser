@@ -32,15 +32,15 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof FileMessage) {
             FileMessage fm = (FileMessage)msg;
             LOG.debug("Это файл с именем {}",fm.getFileName());
-            Files.write(Paths.get("server_repo/" + fm.getFileName()), fm.getData(), StandardOpenOption.CREATE);
+            Files.write(Paths.get("/server_repo/" + fm.getFileName()), fm.getData(), StandardOpenOption.CREATE);
             LOG.debug("Файл {} получен",fm.getFileName());
         }
         if (msg instanceof ListFileRequest) {
-            List<String> listOfFiles = Files.list(Paths.get("server_repo"))
+            List<String> listOfFiles = Files.list(Paths.get("server_repo/"))
                     .map(path -> path.getFileName().toString())
                     .collect(Collectors.toList());
             ctx.writeAndFlush(new ListFileRequest(listOfFiles));
-            LOG.debug("Обновление листа файлов на сервере");
+            LOG.debug("С сервера высланы обновленные данные по списку файлов");
         }
         if (msg instanceof FileRequest) {
             FileRequest fr = (FileRequest) msg;

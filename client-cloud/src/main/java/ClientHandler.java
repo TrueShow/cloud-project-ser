@@ -1,7 +1,5 @@
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
-import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import io.netty.util.ReferenceCountUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -15,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -23,10 +20,8 @@ import java.util.List;
 
 public class ClientHandler extends ChannelInboundHandlerAdapter {
 
-    private Socket socket;
-    private ObjectDecoderInputStream in;
-    private ObjectEncoderOutputStream out;
     private List<String> list;
+    private Network network;
     public static volatile boolean flag;
 
     @FXML
@@ -61,7 +56,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
-            out.writeObject(new ListFileRequest());
             if (msg instanceof ListFileRequest) {
                 ListFileRequest lfr = (ListFileRequest) msg;
                 filesListCloud.getItems().clear();
@@ -99,62 +93,40 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
         });
 
         connection.setOnAction(e -> {
-            new NettyClient("localhost", 8189);
-            flag = true;
-            if (socket != null && socket.isConnected()) {
-                LOG.debug("Клиент уже подключен");
-            } else {
-                try {
-                    socket = new Socket("localhost", 8189);
-                    LOG.debug("Клиент подключился...");
-                    out = new ObjectEncoderOutputStream(socket.getOutputStream());
-                    in = new ObjectDecoderInputStream(socket.getInputStream());
-                    LOG.debug("Канал по передачи объекта запущен");
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
+            network = new Network();
+            LOG.debug("Стартанул Netty Client");
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
             }
+            network.sendObj(new ListFileRequest());
+            LOG.debug("Запрос на обновление листа отправлен (при старте сервера)");
         });
 
         uploadFile.setOnAction(e -> {
             FileMessage fm = new FileMessage(pathToFile.getText());
-            try {
-                out.writeObject(fm);
-                LOG.debug("Файл отправлен - {}", fm.getFileName());
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            network.sendObj(fm);
+            LOG.debug("Файл отправлен - {}", fm.getFileName());
+            pathToFile.clear();
             refreshStorageFilesList();
             refreshLocalFilesList();
         });
 
         disconnectButton.setOnAction(event -> {
-            flag = false;
-            if (socket == null || socket.isClosed()) {
-                LOG.debug("Нет подключения к серверу");
-            } else {
-                try {
-                    out.close();
-                    in.close();
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                LOG.debug("Соединение с сервером остановлено");
-            }
+            network.close();
+            LOG.debug("Соединение с сервером остановлено");
         });
+
         updateButton.setOnAction(e -> {
             refreshStorageFilesList();
             refreshLocalFilesList();
+            LOG.debug("Запрос на обновление листа отправлен (вручную)");
         });
 
         downloadSelectedFile.setOnAction(e -> {
-            try {
-                String fileSelected = filesListCloud.getSelectionModel().getSelectedItem();
-                out.writeObject(new FileRequest(fileSelected));
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            String fileSelected = filesListCloud.getSelectionModel().getSelectedItem();
+            network.sendObj(new FileRequest(fileSelected));
         });
     }
 
@@ -171,10 +143,10 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
     private void refreshStorageFilesList() {
         Platform.runLater(() -> {
-            if (socket.isConnected()) {
+            if (network.getChannel().isActive()) {
                 try {
                     filesListCloud.getItems().clear();
-                    out.writeObject(new ListFileRequest());
+                    network.sendObj(new ListFileRequest());
                     Files.list(Paths.get("client_repo")).map(p -> p.getFileName().toString()).forEach(o -> filesListClient.getItems().add(o));
                 } catch (IOException e) {
                     e.printStackTrace();
