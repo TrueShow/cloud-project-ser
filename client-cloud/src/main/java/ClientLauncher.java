@@ -11,7 +11,11 @@ public class ClientLauncher extends Application {
         Parent root = fxmlLoader.load();
         primaryStage.setTitle("Test Client");
         Scene scene = new Scene(root, 600, 400);
+        primaryStage.setOnCloseRequest(event -> {
+            System.exit(0);
+        });
         primaryStage.setScene(scene);
         primaryStage.show();
     }
+
 }

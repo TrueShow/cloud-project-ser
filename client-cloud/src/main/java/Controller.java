@@ -18,7 +18,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 
-public class ClientHandler extends ChannelInboundHandlerAdapter {
+public class Controller extends ChannelInboundHandlerAdapter {
 
     private List<String> list;
     private Network network;
@@ -51,7 +51,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     @FXML
     private Button connection;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClientHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Controller.class);
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -60,10 +60,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
                 ListFileRequest lfr = (ListFileRequest) msg;
                 filesListCloud.getItems().clear();
                 list = lfr.getList();
-                Platform.runLater(() -> {
-                    list.forEach(o -> filesListCloud.getItems().add(o));
-                    LOG.debug("Список файлов обновлен");
-                });
+                list.forEach(o -> filesListCloud.getItems().add(o));
+                LOG.debug("Список файлов обновлен");
             }
             if (msg instanceof FileMessage) {
                 FileMessage fm = (FileMessage) msg;
@@ -121,7 +119,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
         updateButton.setOnAction(e -> {
             refreshStorageFilesList();
             refreshLocalFilesList();
-            LOG.debug("Запрос на обновление листа отправлен (вручную)");
         });
 
         downloadSelectedFile.setOnAction(e -> {
@@ -144,13 +141,9 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
     private void refreshStorageFilesList() {
         Platform.runLater(() -> {
             if (network.getChannel().isActive()) {
-                try {
-                    filesListCloud.getItems().clear();
-                    network.sendObj(new ListFileRequest());
-                    Files.list(Paths.get("client_repo")).map(p -> p.getFileName().toString()).forEach(o -> filesListClient.getItems().add(o));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                filesListCloud.getItems().clear();
+                network.sendObj(new ListFileRequest());
+                LOG.debug("Запрос на обновление листа отправлен");
             } else {
                 LOG.debug("Подключения к серверу нет");
             }
