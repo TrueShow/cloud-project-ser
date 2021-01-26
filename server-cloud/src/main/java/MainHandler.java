@@ -14,6 +14,7 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(MainHandler.class);
     private static int counter = 0;
+    DbHandler db;
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
@@ -24,6 +25,7 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         counter++;
         LOG.debug("Клиент подключился, подключено - {} клиентов", counter);
+        db = new DbHandler();
     }
 
     @Override
@@ -32,7 +34,7 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof FileMessage) {
             FileMessage fm = (FileMessage)msg;
             LOG.debug("Это файл с именем {}",fm.getFileName());
-            Files.write(Paths.get("/server_repo/" + fm.getFileName()), fm.getData(), StandardOpenOption.CREATE);
+            Files.write(Paths.get("server_repo/" + fm.getFileName()), fm.getData(), StandardOpenOption.CREATE);
             LOG.debug("Файл {} получен",fm.getFileName());
         }
         if (msg instanceof ListFileRequest) {
@@ -52,6 +54,11 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
                 LOG.debug("Запрошенного файла {} нет!", fr.getFilename());
             }
         }
+//        if (msg instanceof RegisterMsg) {
+//            RegisterMsg rm = (RegisterMsg) msg;
+
+       //     db.registerNewUser(user);
+//        }
         ReferenceCountUtil.release(msg);
     }
 

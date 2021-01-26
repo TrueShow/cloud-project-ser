@@ -17,8 +17,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 
-public class MainController {
-    private static final Logger LOG = LoggerFactory.getLogger(MainController.class);
+public class MainController_temp {
+    private static final Logger LOG = LoggerFactory.getLogger(MainController_temp.class);
 
     private Socket socket;
     private ObjectDecoderInputStream in;
