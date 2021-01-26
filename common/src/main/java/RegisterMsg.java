@@ -3,7 +3,7 @@ public class RegisterMsg extends AbstractMessage {
     String lastName;
     String userName;
     String password;
-
+    //еще не реализовано
     public RegisterMsg(String firstName, String lastName, String userName, String password) {
         this.firstName = firstName;
         this.lastName = lastName;

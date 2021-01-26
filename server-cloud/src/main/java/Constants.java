@@ -1,4 +1,5 @@
 public class Constants {
+    //еще не реализовано
     public static final String USER_TABLE = "users";
     public static final String USER_ID = "id";
     public static final String USER_FIRSTNAME = "first_name";

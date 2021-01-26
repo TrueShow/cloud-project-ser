@@ -7,6 +7,7 @@ public class DbHandler {
     private static final Logger LOG = LoggerFactory.getLogger(DbHandler.class);
     private static Connection conn;
 
+    //еще не реализовано
     public static void connect() {
         try {
             Class.forName("org.sqlite.JDBC");
@@ -19,7 +20,7 @@ public class DbHandler {
 
     public void registerNewUser(User user) {
         String insert = "INSERT INTO " + Constants.USER_TABLE + "(" + Constants.USER_FIRSTNAME + ", "
-                + Constants.USER_LASTNAME + ", " + Constants.USER_USERNAME + "," + Constants.USER_PASSWORD +") VALUES(?, ?, ?, ?);";
+                + Constants.USER_LASTNAME + ", " + Constants.USER_USERNAME + "," + Constants.USER_PASSWORD + ") VALUES(?, ?, ?, ?);";
         try {
             PreparedStatement preparedStatement = conn.prepareStatement(insert);
             preparedStatement.setString(1, user.getFirstName());
@@ -31,6 +32,7 @@ public class DbHandler {
             e.printStackTrace();
         }
     }
+
     public ResultSet getUser(User user) {
         ResultSet rs = null;
         String select = "Select * FROM " + Constants.USER_TABLE + " WHERE " +

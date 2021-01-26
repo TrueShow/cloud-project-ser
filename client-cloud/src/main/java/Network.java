@@ -13,6 +13,7 @@ import io.netty.util.ReferenceCountUtil;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -29,7 +30,7 @@ public class Network {
     private Controller controller;
 
     private Network(Controller controller) {
-       this.controller = controller;
+        this.controller = controller;
     }
 
     public static Network getInstance(Controller controller) {

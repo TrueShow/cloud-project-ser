@@ -4,6 +4,7 @@ public class User {
     private String userName;
     private String password;
 
+    //еще не реализовано
     public User(String firstName, String lastName, String userName, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -11,7 +12,8 @@ public class User {
         this.password = password;
     }
 
-    public User() {}
+    public User() {
+    }
 
     public String getFirstName() {
         return firstName;

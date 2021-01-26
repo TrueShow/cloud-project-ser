@@ -32,10 +32,10 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         LOG.debug("Прилетел запрос, объект - {}", msg.getClass());
         if (msg instanceof FileMessage) {
-            FileMessage fm = (FileMessage)msg;
-            LOG.debug("Это файл с именем {}",fm.getFileName());
+            FileMessage fm = (FileMessage) msg;
+            LOG.debug("Это файл с именем {}", fm.getFileName());
             Files.write(Paths.get("server_repo/" + fm.getFileName()), fm.getData(), StandardOpenOption.CREATE);
-            LOG.debug("Файл {} получен",fm.getFileName());
+            LOG.debug("Файл {} получен", fm.getFileName());
         }
         if (msg instanceof ListFileRequest) {
             List<String> listOfFiles = Files.list(Paths.get("server_repo/"))
@@ -49,7 +49,7 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
             if (Files.exists(Paths.get("server_repo/" + fr.getFilename()))) {
                 FileMessage fm = new FileMessage(Paths.get("server_repo/" + fr.getFilename()));
                 ctx.writeAndFlush(fm);
-                LOG.debug("Файл {} отправлен",fm.getFileName());
+                LOG.debug("Файл {} отправлен", fm.getFileName());
             } else {
                 LOG.debug("Запрошенного файла {} нет!", fr.getFilename());
             }
@@ -57,7 +57,7 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
 //        if (msg instanceof RegisterMsg) {
 //            RegisterMsg rm = (RegisterMsg) msg;
 
-       //     db.registerNewUser(user);
+        //     db.registerNewUser(user);
 //        }
         ReferenceCountUtil.release(msg);
     }

@@ -3,7 +3,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
-public class RegisterController  {
+//еще не реализовано
+public class RegisterController {
 
     @FXML
     private TextField firstNameField;
@@ -29,7 +30,7 @@ public class RegisterController  {
                     loginFieldRegister.getText(),
                     passFieldRegister.getText()
             );
-           // network.sendObj(rm);
+            // network.sendObj(rm);
             registerButton.getScene().getWindow().hide();
         });
     }
