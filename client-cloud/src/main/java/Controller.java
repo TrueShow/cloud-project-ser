@@ -1,3 +1,4 @@
+import io.netty.util.ReferenceCountUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -5,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -15,12 +17,18 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
+import java.nio.file.StandardOpenOption;
 
 public class Controller {
     private static final Logger LOG = LoggerFactory.getLogger(Controller.class);
-    private Network network = Network.getInstance(this);
-    public List<String> list;
+    private Network network;
+
+    @FXML
+    public ProgressBar pbQuantity;
+
+    @FXML
+    public Button deleteButton;
+
     @FXML
     public Button loginUser;
 
@@ -34,16 +42,10 @@ public class Controller {
     public TextField loginField;
 
     @FXML
-    public Button updateButton;
-
-    @FXML
     public Button disconnectButton;
 
     @FXML
     public ListView<String> filesListCloud;
-
-    @FXML
-    public ListView<String> filesListClient;
 
     @FXML
     public Button downloadSelectedFile;
@@ -62,7 +64,7 @@ public class Controller {
 
     @FXML
     void initialize() {
-        refreshLocalFilesList();
+
 
         registerNewUser.setOnAction(e -> {
             openNewScene("registerForm.fxml");
@@ -73,7 +75,40 @@ public class Controller {
         });
 
         connection.setOnAction(e -> {
-            network.launch();
+            network = Network.getInstance(msg ->  {
+                try {
+                    if (msg instanceof ListFileRequest) {
+                        ListFileRequest lfr = (ListFileRequest) msg;
+                        Platform.runLater(() -> {
+                            filesListCloud.getItems().clear();
+                            filesListCloud.getItems().addAll(lfr.getList());
+                        });
+
+                        LOG.debug("Список файлов обновлен");
+                    }
+                    if (msg instanceof FileMessage) {
+                        FileMessage fm = (FileMessage) msg;
+                        Platform.runLater(() -> {
+                            try {
+                                FileChooser fc = new FileChooser();
+                                fc.setInitialFileName(fm.getFileName());
+                                File file = fc.showSaveDialog(new Stage());
+                                LOG.debug("Запрос на сохранение файл {}", fm.getFileName());
+                                if (file != null) {
+                                    file = new File(file.getAbsolutePath());
+                                    Files.write(Paths.get(file.getAbsolutePath()), fm.getData(), StandardOpenOption.CREATE);
+                                }
+                            } catch (IOException event) {
+                                event.printStackTrace();
+                            }
+                        });
+                    }
+                } catch (Exception ev) {
+                    ev.printStackTrace();
+                }
+                ReferenceCountUtil.release(msg);
+            });
+
             LOG.debug("Стартанул Netty Client");
             try {
                 Thread.sleep(500);
@@ -90,23 +125,27 @@ public class Controller {
             LOG.debug("Файл отправлен - {}", fm.getFileName());
             pathToFile.clear();
             refreshStorageFilesList();
-            refreshLocalFilesList();
         });
 
-        disconnectButton.setOnAction(event -> {
+        disconnectButton.setOnAction(e -> {
             filesListCloud.getItems().clear();
-            network.close();
-            LOG.debug("Соединение с сервером остановлено");
+            if (network != null) {
+                network.close();
+                LOG.debug("Соединение с сервером остановлено");
+            }
+            else LOG.debug("Соединение не установно");
         });
 
-        updateButton.setOnAction(e -> {
+        deleteButton.setOnAction(e->{
+            String fileSelected = filesListCloud.getSelectionModel().getSelectedItem();
+            network.sendObj(new FileRequest(fileSelected, true));
+
             refreshStorageFilesList();
-            refreshLocalFilesList();
         });
 
         downloadSelectedFile.setOnAction(e -> {
             String fileSelected = filesListCloud.getSelectionModel().getSelectedItem();
-            network.sendObj(new FileRequest(fileSelected));
+            network.sendObj(new FileRequest(fileSelected, false));
         });
     }
 
@@ -129,17 +168,6 @@ public class Controller {
                 LOG.debug("Запрос на обновление листа отправлен");
             } else {
                 LOG.debug("Файл не обновляется, нет подключения к серверу");
-            }
-        });
-    }
-
-    public void refreshLocalFilesList() {
-        Platform.runLater(() -> {
-            try {
-                filesListClient.getItems().clear();
-                Files.list(Paths.get("client_repo")).map(p -> p.getFileName().toString()).forEach(o -> filesListClient.getItems().add(o));
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         });
     }
