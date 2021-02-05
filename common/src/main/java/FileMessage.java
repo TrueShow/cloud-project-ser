@@ -7,14 +7,12 @@ public class FileMessage extends AbstractMessage {
     private static final long serialVersionUID = -4998843746053293367L;
 
     private String fileName;
-    private String name;
     private byte[] data;
 
     public FileMessage(String path) {
         try {
             Path file = Paths.get(path);
             fileName = file.getFileName().toString();
-            name = file.toString();
             data = Files.readAllBytes(file);
         } catch (IOException e) {
             e.printStackTrace();

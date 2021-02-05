@@ -3,29 +3,33 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class MainHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(MainHandler.class);
-    private static int counter = 0;
-    DbHandler db;
+    private DbHandler db;
+    private String clientNick;
+    private Path clientPath;
+    private  static int cnt = 0;
+
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        LOG.debug("Клиент отключился, осталось подключено - {} клиентов", --counter);
+        LOG.debug("Клиент отключился, осталось подключено - {} клиентов", --cnt);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        counter++;
-        LOG.debug("Клиент подключился, подключено - {} клиентов", counter);
+        LOG.debug("Клиент подключился, подключено - {} клиентов", cnt);
         db = new DbHandler();
+        clientNick = "user" + cnt;
+        clientPath = Paths.get("server_repo", clientNick);
+        if (!Files.exists((clientPath))) {
+            Files.createDirectory(clientPath);
+        }
     }
 
     @Override
@@ -34,25 +38,35 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof FileMessage) {
             FileMessage fm = (FileMessage) msg;
             LOG.debug("Это файл с именем {}", fm.getFileName());
-            Files.write(Paths.get("server_repo/" + fm.getFileName()), fm.getData(), StandardOpenOption.CREATE);
+            Files.write(clientPath.resolve(fm.getFileName()),fm.getData());
             LOG.debug("Файл {} получен", fm.getFileName());
         }
         if (msg instanceof ListFileRequest) {
-            List<String> listOfFiles = Files.list(Paths.get("server_repo/"))
-                    .map(path -> path.getFileName().toString())
-                    .collect(Collectors.toList());
-            ctx.writeAndFlush(new ListFileRequest(listOfFiles));
+            ctx.writeAndFlush(new ListFileRequest(clientPath));
             LOG.debug("С сервера высланы обновленные данные по списку файлов");
         }
         if (msg instanceof FileRequest) {
             FileRequest fr = (FileRequest) msg;
-            if (Files.exists(Paths.get("server_repo/" + fr.getFilename()))) {
-                FileMessage fm = new FileMessage(Paths.get("server_repo/" + fr.getFilename()));
-                ctx.writeAndFlush(fm);
-                LOG.debug("Файл {} отправлен", fm.getFileName());
+            if (!fr.isDelete()) {
+                if (Files.exists(Paths.get("server_repo", clientNick, fr.getFilename()))) {
+                    FileMessage fm = new FileMessage(Paths.get("server_repo", clientNick, fr.getFilename()));
+                    ctx.writeAndFlush(fm);
+                    LOG.debug("Файл {} отправлен", fm.getFileName());
+
+                } else {
+                    LOG.debug("Запрошенного файла {} нет!", fr.getFilename());
+                }
             } else {
-                LOG.debug("Запрошенного файла {} нет!", fr.getFilename());
+                if (Files.exists(Paths.get("server_repo", clientNick, fr.getFilename()))) {
+                    Files.delete(Paths.get("server_repo", clientNick, fr.getFilename()));
+                    LOG.debug("Файл {} удален", fr.getFilename());
+
+                } else {
+                    LOG.debug("Запрошенного файла {} нет!", fr.getFilename());
+                }
             }
+
+
         }
 //        if (msg instanceof RegisterMsg) {
 //            RegisterMsg rm = (RegisterMsg) msg;
