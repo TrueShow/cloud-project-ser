@@ -6,58 +6,68 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="461.0" style="-fx-background-color: #1b4763;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="RegisterController">
    <children>
-      <AnchorPane layoutY="71.0" prefHeight="329.0" prefWidth="461.0" style="-fx-background-color: #2f7bad;">
+      <AnchorPane layoutY="71.0" prefHeight="329.0" prefWidth="461.0" style="-fx-background-color: #fafafa;">
          <children>
-            <TextField fx:id="firstNameField" layoutX="59.0" layoutY="73.0" prefHeight="25.0" prefWidth="142.0" promptText="First name" style="-fx-border-color: #1b4763;">
+            <TextField fx:id="firstNameField" alignment="CENTER" layoutX="59.0" layoutY="73.0" prefHeight="25.0" prefWidth="142.0" promptText="First name" style="-fx-background-color: #fafafa; -fx-border-color: silver; -fx-border-radius: 5;">
                <font>
                   <Font size="15.0" />
                </font>
             </TextField>
-            <TextField fx:id="lastNameField" layoutX="58.0" layoutY="140.0" prefHeight="25.0" prefWidth="142.0" promptText="Last name" style="-fx-border-color: #1b4763;">
+            <TextField fx:id="lastNameField" alignment="CENTER" layoutX="58.0" layoutY="140.0" prefHeight="25.0" prefWidth="142.0" promptText="Last name" style="-fx-background-color: #fafafa; -fx-border-color: silver; -fx-border-radius: 5;">
                <font>
                   <Font size="15.0" />
                </font>
             </TextField>
-            <Label layoutX="95.0" layoutY="47.0" text="First name" textFill="#c4d4e4">
+            <Label layoutX="98.0" layoutY="54.0" text="First name" textFill="#00000080">
                <font>
-                  <Font size="16.0" />
+                  <Font size="14.0" />
                </font>
             </Label>
-            <Label layoutX="93.0" layoutY="114.0" text="Last name" textFill="#c4d4e4">
+            <Label layoutX="95.0" layoutY="120.0" text="Last name" textFill="#00000080">
                <font>
-                  <Font size="16.0" />
+                  <Font size="14.0" />
                </font>
             </Label>
-            <TextField fx:id="loginFieldRegister" layoutX="258.0" layoutY="73.0" prefHeight="25.0" prefWidth="142.0" promptText="User name" style="-fx-border-color: #1b4763;">
+            <TextField fx:id="loginFieldRegister" alignment="CENTER" layoutX="258.0" layoutY="73.0" prefHeight="25.0" prefWidth="142.0" promptText="User name" style="-fx-background-color: #fafafa; -fx-border-color: silver; -fx-border-radius: 5;">
                <font>
                   <Font size="15.0" />
                </font>
             </TextField>
-            <PasswordField fx:id="passFieldRegister" layoutX="258.0" layoutY="140.0" prefHeight="31.0" prefWidth="142.0" promptText="Password" style="-fx-border-color: #1b4763;">
+            <PasswordField fx:id="passFieldRegister" alignment="CENTER" layoutX="258.0" layoutY="140.0" prefHeight="31.0" prefWidth="142.0" promptText="Password" style="-fx-background-color: #fafafa; -fx-border-color: silver; -fx-border-radius: 5;">
                <font>
                   <Font size="15.0" />
                </font>
             </PasswordField>
-            <Label layoutX="290.0" layoutY="47.0" text="User name" textFill="#c4d4e4">
+            <Label layoutX="293.0" layoutY="54.0" text="User name" textFill="#00000080">
                <font>
-                  <Font size="16.0" />
+                  <Font size="14.0" />
                </font>
             </Label>
-            <Label layoutX="295.0" layoutY="115.0" text="Password" textFill="#c4d4e4">
+            <Label layoutX="298.0" layoutY="121.0" text="Password" textFill="#00000080">
                <font>
-                  <Font size="16.0" />
+                  <Font size="14.0" />
                </font>
             </Label>
-            <Button fx:id="registerButton" layoutX="184.0" layoutY="250.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="94.0" style="-fx-background-color: #1b4763;" text="Register" textFill="#f8f8f8">
+            <Button fx:id="registerButton" layoutX="184.0" layoutY="232.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="94.0" style="-fx-background-color: #1b4763;" text="Register" textFill="#f8f8f8">
                <font>
                   <Font name="System Bold" size="17.0" />
                </font>
             </Button>
+            <Text fx:id="textField" fill="#c67d7d" layoutX="200.0" layoutY="204.0" strokeType="OUTSIDE" strokeWidth="0.0" text="fill up fields" textAlignment="CENTER">
+               <font>
+                  <Font name="System Italic" size="12.0" />
+               </font>
+            </Text>
          </children>
       </AnchorPane>
-      <Text fill="#dadaf2" layoutX="42.0" layoutY="43.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Remote Storage: Register New User">
+      <Text fill="#a4a4bc" layoutX="6.0" layoutY="20.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Remote Storage">
          <font>
-            <Font name="System Bold" size="24.0" />
+            <Font name="System Bold" size="17.0" />
+         </font>
+      </Text>
+      <Text fill="WHITE" layoutX="151.0" layoutY="47.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Registration">
+         <font>
+            <Font name="System Bold" size="31.0" />
          </font>
       </Text>
    </children>

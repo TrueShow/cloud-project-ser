@@ -8,13 +8,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class MainHandler extends ChannelInboundHandlerAdapter {
-
     private static final Logger LOG = LoggerFactory.getLogger(MainHandler.class);
     private DbHandler db;
     private String clientNick;
     private Path clientPath;
     private  static int cnt = 0;
-
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
@@ -79,6 +77,7 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         cause.printStackTrace();
+        LOG.debug("Какая то ошибка");
         ctx.close();
     }
 }

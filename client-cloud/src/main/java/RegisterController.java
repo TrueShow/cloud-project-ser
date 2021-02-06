@@ -1,10 +1,19 @@
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.text.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-//еще не реализовано
+
 public class RegisterController {
+    private static final Logger LOG = LoggerFactory.getLogger(RegisterController.class);
+    private Network network;
+
+    @FXML
+    private Text textField;
 
     @FXML
     private TextField firstNameField;
@@ -23,15 +32,40 @@ public class RegisterController {
 
     @FXML
     void initialize() {
+        network = Network.getInstance(msg -> {
+            if (msg instanceof RegisterMsg) {
+                RegisterMsg register = (RegisterMsg) msg;
+                if (register.isExist()) {
+                    Platform.runLater(()-> {
+                        textField.setText("Login exists! Enter another Login");
+                    });
+                } else {
+                    Platform.runLater(()-> {
+                        LOG.debug("Пользователь зарегистрирован {}", register.getUserName());
+                        registerButton.getScene().getWindow().hide();
+                    });
+                }
+            }
+        });
+
         registerButton.setOnAction(e -> {
-            RegisterMsg rm = new RegisterMsg(
-                    firstNameField.getText(),
-                    lastNameField.getText(),
-                    loginFieldRegister.getText(),
-                    passFieldRegister.getText()
-            );
-            // network.sendObj(rm);
-            registerButton.getScene().getWindow().hide();
+            String login = loginFieldRegister.getText().trim();
+            String password = passFieldRegister.getText().trim();
+            String firsName = firstNameField.getText();
+            String lastName = lastNameField.getText();
+
+            if (login.equals("") || password.equals("") || firsName.equals("") || lastName.equals("")) {
+                Platform.runLater(()-> {
+                    textField.setText("Fields don't be empty");
+                });
+            }
+
+            network.sendObj(new RegisterMsg(
+                    firsName,
+                    lastName,
+                    login,
+                    password
+            ));
         });
     }
 }

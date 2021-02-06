@@ -10,7 +10,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>client-cloud</artifactId>
+
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.fxml</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -4,7 +4,6 @@ public class User {
     private String userName;
     private String password;
 
-    //еще не реализовано
     public User(String firstName, String lastName, String userName, String password) {
         this.firstName = firstName;
         this.lastName = lastName;

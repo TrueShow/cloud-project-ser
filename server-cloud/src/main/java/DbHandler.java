@@ -7,11 +7,10 @@ public class DbHandler {
     private static final Logger LOG = LoggerFactory.getLogger(DbHandler.class);
     private static Connection conn;
 
-    //еще не реализовано
     public static void connect() {
         try {
             Class.forName("org.sqlite.JDBC");
-            conn = DriverManager.getConnection("jdbc:sqlite:authBD.db");
+            conn = DriverManager.getConnection("jdbc:sqlite:" + DbHandler.class.getResource("authBD.db"));
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
@@ -31,6 +30,7 @@ public class DbHandler {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        LOG.debug("Добавлен новый пользователь {}, {}, {}, {}", user.getFirstName(), user.getLastName(), user.getUserName(), user.getPassword());
     }
 
     public ResultSet getUser(User user) {
@@ -51,8 +51,13 @@ public class DbHandler {
     public static void close() {
         try {
             conn.close();
+            LOG.debug("Соединение с БД закрыто");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+    }
+
+    public static Connection getConn() {
+        return conn;
     }
 }
