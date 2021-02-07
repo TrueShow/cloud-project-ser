@@ -107,10 +107,10 @@ public class Controller {
                 network.close();
                 LOG.debug("Соединение с сервером остановлено");
             } else LOG.debug("Соединение с сервером не установно...");
-            Platform.runLater(() -> {
-                disconnectButton.getScene().getWindow().hide();
-                openNewScene("authForm.fxml");
-            });
+//            Platform.runLater(() -> {
+//                disconnectButton.getScene().getWindow().hide();
+//                openNewScene("authForm.fxml");
+//            });
         });
 
         deleteButton.setOnAction(e -> {
