@@ -26,7 +26,7 @@ public class DbHandler {
             preparedStatement.setString(2, user.getLastName());
             preparedStatement.setString(3, user.getUserName());
             preparedStatement.setString(4, user.getPassword());
-            preparedStatement.executeUpdate();
+            preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }

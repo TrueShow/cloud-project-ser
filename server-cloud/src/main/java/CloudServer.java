@@ -31,7 +31,6 @@ public class CloudServer extends Thread {
                             ch.pipeline().addLast(
                                     new ObjectDecoder(Integer.MAX_VALUE, ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
-                                    new AuthHandler(),
                                     new MainHandler()
                             );
                         }
