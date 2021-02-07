@@ -13,7 +13,7 @@ import java.sql.SQLException;
 public class MainHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(MainHandler.class);
     private DbHandler db;
-    private String clientNick;
+    private static String clientNick;
     private static Path clientPath;
     private static int cnt = 0;
 

@@ -13,6 +13,5 @@
       <Button fx:id="downloadSelectedFile" layoutX="8.0" layoutY="250.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="85.0" text="Download" />
       <Button fx:id="deleteButton" layoutX="202.0" layoutY="251.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="85.0" text="Delete file" />
       <Button fx:id="disconnectButton" layoutX="402.0" layoutY="48.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="101.0" text="Disconnect" textFill="RED" />
-      <Button fx:id="connection" layoutX="398.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="101.0" text="Connect" />
    </children>
 </AnchorPane>
