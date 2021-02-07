@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 
 import animation.Shake;
 import io.netty.util.ReferenceCountUtil;
@@ -17,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 public class AuthController {
     private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
-
     private Network network;
 
     @FXML
@@ -37,7 +37,6 @@ public class AuthController {
 
     @FXML
     void initialize() {
-
         network = Network.getInstance(msg -> {
             if (msg instanceof AuthRequest) {
                 AuthRequest request = (AuthRequest) msg;
@@ -46,6 +45,7 @@ public class AuthController {
                         authLoginButton.getScene().getWindow().hide();
                         openNewScene("/mainLayout.fxml");
                         LOG.debug("Открыта новая сцена mainLayout");
+                        network.close();
                     });
                 } else {
                     Platform.runLater(() -> {
@@ -59,11 +59,6 @@ public class AuthController {
             }
             ReferenceCountUtil.release(msg);
         });
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException interruptedException) {
-            interruptedException.printStackTrace();
-        }
         authLoginButton.setOnAction(e -> {
             String login = authLoginField.getText();
             String password = authPassField.getText();

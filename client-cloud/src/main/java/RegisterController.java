@@ -43,6 +43,7 @@ public class RegisterController {
                     Platform.runLater(()-> {
                         LOG.debug("Пользователь зарегистрирован {}", register.getUserName());
                         registerButton.getScene().getWindow().hide();
+                        network.close();
                     });
                 }
             }

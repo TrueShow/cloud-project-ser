@@ -10,28 +10,17 @@ import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class MainHandler extends ChannelInboundHandlerAdapter {
-    private static final Logger LOG = LoggerFactory.getLogger(MainHandler.class);
+public class LoginHandler extends ChannelInboundHandlerAdapter {
+    private static final Logger LOG = LoggerFactory.getLogger(LoginHandler.class);
     private DbHandler db;
     private String clientNick;
     private Path clientPath;
     private static int cnt = 0;
-    private static boolean authOk = false;
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        LOG.debug("Клиент отключился, осталось подключено - {} клиентов", --cnt);
-    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         cnt++;
-        clientNick = "user" + cnt;
-        clientPath = Paths.get("server_repo", clientNick);
         LOG.debug("Клиент подключился, подключено - {} клиентов", cnt);
-        if (!Files.exists((clientPath))) {
-            Files.createDirectory(clientPath);
-        }
         if (DbHandler.getConn() == null) {
             DbHandler.connect();
         }
@@ -41,9 +30,9 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         db = new DbHandler();
         if (msg instanceof AuthRequest) {
-            AuthRequest request = (AuthRequest) msg;
-            String login = request.getLogin().trim();
-            String password = request.getPassword().trim();
+            AuthRequest answer = (AuthRequest) msg;
+            String login = answer.getLogin().trim();
+            String password = answer.getPassword().trim();
             clientNick = login;
             if (!login.equals("") && !password.equals("")) {
                 User user = new User();
@@ -51,51 +40,22 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
                 user.setPassword(password);
                 if (checkUser(user)) {
                     LOG.debug("логин и пароль есть в БД");
-                    request.setAuthOk(true);
                     clientPath = Paths.get("server_repo", clientNick);
+                    Paths.get("server_repo", clientNick);
                     if (!Files.exists((clientPath))) {
                         Files.createDirectory(clientPath);
                     }
-                    authOk = true;
-                    LOG.debug("authOk установлен");
-                    ctx.writeAndFlush(request);
+                    answer.setAuthOk(true);
+                    ctx.writeAndFlush(answer);
+                    ctx.pipeline().addLast(new MainHandler());
+                    ctx.pipeline().remove(this);
+                    ctx.fireChannelRead(msg);
                 } else {
-                    ctx.writeAndFlush(request);
+                    ctx.writeAndFlush(answer);
                 }
             } else {
                 LOG.debug("Неверный логин или пароль");
-                ctx.writeAndFlush(request);
-            }
-        }
-        LOG.debug("Прилетел запрос, объект - {}", msg.getClass());
-        if (msg instanceof FileMessage) {
-            FileMessage fm = (FileMessage) msg;
-            LOG.debug("Это файл с именем {}", fm.getFileName());
-            Files.write(clientPath.resolve(fm.getFileName()), fm.getData());
-            LOG.debug("Файл {} получен", fm.getFileName());
-        }
-        if (msg instanceof ListFileRequest) {
-            ctx.writeAndFlush(new ListFileRequest(clientPath));
-            LOG.debug("С сервера высланы обновленные данные по списку файлов");
-        }
-        if (msg instanceof FileRequest) {
-            FileRequest fr = (FileRequest) msg;
-            if (!fr.isDelete()) {
-                if (Files.exists(Paths.get("server_repo", clientNick, fr.getFilename()))) {
-                    FileMessage fm = new FileMessage(Paths.get("server_repo", clientNick, fr.getFilename()));
-                    ctx.writeAndFlush(fm);
-                    LOG.debug("Файл {} отправлен", fm.getFileName());
-
-                } else {
-                    LOG.debug("Запрошенного файла {} нет!", fr.getFilename());
-                }
-            } else {
-                if (Files.exists(Paths.get("server_repo", clientNick, fr.getFilename()))) {
-                    Files.delete(Paths.get("server_repo", clientNick, fr.getFilename()));
-                    LOG.debug("Файл {} удален", fr.getFilename());
-                } else {
-                    LOG.debug("Запрошенного файла {} нет!", fr.getFilename());
-                }
+                ctx.writeAndFlush(answer);
             }
         }
         if (msg instanceof RegisterMsg) {
@@ -121,7 +81,6 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         cause.printStackTrace();
-        LOG.debug("Какая то ошибка");
         ctx.close();
     }
 

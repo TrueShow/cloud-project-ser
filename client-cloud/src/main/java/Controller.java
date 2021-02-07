@@ -17,9 +17,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.concurrent.CountDownLatch;
 
 public class Controller {
     private static final Logger LOG = LoggerFactory.getLogger(Controller.class);
+    private CountDownLatch latch = new CountDownLatch(1);
     private Network network;
 
     @FXML
@@ -48,8 +50,8 @@ public class Controller {
 
     @FXML
     void initialize() {
-
         network = Network.getInstance(msg -> {
+
             try {
                 if (msg instanceof ListFileRequest) {
                     ListFileRequest lfr = (ListFileRequest) msg;
@@ -84,9 +86,9 @@ public class Controller {
             ReferenceCountUtil.release(msg);
         });
         try {
-            Thread.sleep(500);
-        } catch (InterruptedException interruptedException) {
-            interruptedException.printStackTrace();
+            Thread.sleep(500); //как обойти данный вариант?
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         network.sendObj(new ListFileRequest());
         LOG.debug("Запрос на обновление листа отправлен (при старте сервера)");

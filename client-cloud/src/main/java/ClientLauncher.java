@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -11,7 +12,8 @@ public class ClientLauncher extends Application {
         Parent root = fxmlLoader.load();
         primaryStage.setTitle("Test Client");
         Scene scene = new Scene(root);
-        primaryStage.setOnCloseRequest(event -> {
+        primaryStage.setOnCloseRequest(e -> {
+            Platform.exit();
             System.exit(0);
         });
         primaryStage.setScene(scene);
