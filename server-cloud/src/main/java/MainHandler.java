@@ -14,9 +14,8 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(MainHandler.class);
     private DbHandler db;
     private String clientNick;
-    private Path clientPath;
+    private static Path clientPath;
     private static int cnt = 0;
-    private static boolean authOk = false;
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
@@ -26,12 +25,12 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         cnt++;
-        clientNick = "user" + cnt;
-        clientPath = Paths.get("server_repo", clientNick);
+//        clientNick = "user" + cnt;
+//        clientPath = Paths.get("server_repo", clientNick);
         LOG.debug("Клиент подключился, подключено - {} клиентов", cnt);
-        if (!Files.exists((clientPath))) {
-            Files.createDirectory(clientPath);
-        }
+//        if (!Files.exists((clientPath))) {
+//            Files.createDirectory(clientPath);
+//        }
         if (DbHandler.getConn() == null) {
             DbHandler.connect();
         }
@@ -52,13 +51,14 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
                 if (checkUser(user)) {
                     LOG.debug("логин и пароль есть в БД");
                     request.setAuthOk(true);
-                    clientPath = Paths.get("server_repo", clientNick);
+                    clientPath = Paths.get("server_repo", login);
                     if (!Files.exists((clientPath))) {
                         Files.createDirectory(clientPath);
                     }
-                    authOk = true;
                     LOG.debug("authOk установлен");
                     ctx.writeAndFlush(request);
+                    ctx.writeAndFlush(new ListFileRequest(clientPath));
+                    LOG.debug("С сервера высланы обновленные данные по списку файлов");
                 } else {
                     ctx.writeAndFlush(request);
                 }

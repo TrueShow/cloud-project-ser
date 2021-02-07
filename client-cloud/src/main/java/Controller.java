@@ -51,7 +51,6 @@ public class Controller {
     @FXML
     void initialize() {
         network = Network.getInstance(msg -> {
-
             try {
                 if (msg instanceof ListFileRequest) {
                     ListFileRequest lfr = (ListFileRequest) msg;
@@ -59,7 +58,6 @@ public class Controller {
                         filesListCloud.getItems().clear();
                         filesListCloud.getItems().addAll(lfr.getList());
                     });
-
                     LOG.debug("Список файлов обновлен");
                 }
                 if (msg instanceof FileMessage) {
@@ -79,7 +77,6 @@ public class Controller {
                         }
                     });
                 }
-
             } catch (Exception ev) {
                 ev.printStackTrace();
             }
@@ -90,8 +87,8 @@ public class Controller {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        network.sendObj(new ListFileRequest());
-        LOG.debug("Запрос на обновление листа отправлен (при старте сервера)");
+//        network.sendObj(new ListFileRequest());
+//        LOG.debug("Запрос на обновление листа отправлен (при старте сервера)");
 
         browseFile.setOnAction(e -> {
             getTheUserFilePath();
