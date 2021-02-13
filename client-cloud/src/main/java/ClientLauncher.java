@@ -12,7 +12,6 @@ public class ClientLauncher extends Application {
         Parent root = fxmlLoader.load();
         primaryStage.setTitle("Test Client");
         Scene scene = new Scene(root);
-        Platform.setImplicitExit(true);
         primaryStage.setOnCloseRequest(e -> {
             Platform.exit();
             System.exit(0);

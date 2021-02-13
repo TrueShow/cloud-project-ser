@@ -17,11 +17,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.concurrent.CountDownLatch;
 
 public class Controller {
     private static final Logger LOG = LoggerFactory.getLogger(Controller.class);
-    private CountDownLatch latch = new CountDownLatch(1);
     private Network network;
 
     @FXML
@@ -53,7 +51,7 @@ public class Controller {
                     ListFileRequest lfr = (ListFileRequest) msg;
                     Platform.runLater(() -> {
                         filesListCloud.getItems().clear();
-                        filesListCloud.getItems().addAll(lfr.getList());
+                        filesListCloud.getItems().addAll(lfr.getList().toString());
                     });
                     LOG.debug("Список файлов обновлен");
                 }
@@ -107,10 +105,6 @@ public class Controller {
                 network.close();
                 LOG.debug("Соединение с сервером остановлено");
             } else LOG.debug("Соединение с сервером не установно...");
-//            Platform.runLater(() -> {
-//                disconnectButton.getScene().getWindow().hide();
-//                openNewScene("authForm.fxml");
-//            });
         });
 
         deleteButton.setOnAction(e -> {
@@ -148,18 +142,5 @@ public class Controller {
                 LOG.debug("Файл не обновляется, нет подключения к серверу");
             }
         });
-    }
-    public void openNewScene(String window) {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource(window));
-        try {
-            loader.load();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-        Parent root = loader.getRoot();
-        Stage stage = new Stage();
-        stage.setScene(new Scene(root));
-        stage.showAndWait();
     }
 }

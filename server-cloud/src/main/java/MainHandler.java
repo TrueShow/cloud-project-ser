@@ -4,6 +4,7 @@ import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,8 +14,8 @@ import java.sql.SQLException;
 public class MainHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(MainHandler.class);
     private DbHandler db;
-    private static String clientNick;
-    private static Path clientPath;
+    private String clientNick;
+    private Path clientPath;
     private static int cnt = 0;
 
     @Override
@@ -51,17 +52,17 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
                 if (checkUser(user)) {
                     LOG.debug("логин и пароль есть в БД");
                     request.setAuthOk(true);
-                    clientPath = Paths.get("server_repo", login);
+                    clientPath = Paths.get("server_repo", clientNick);
                     if (!Files.exists((clientPath))) {
                         Files.createDirectory(clientPath);
                     }
                     LOG.debug("authOk установлен");
                     ctx.writeAndFlush(request);
-                    ctx.writeAndFlush(new ListFileRequest(clientPath));
                     LOG.debug("С сервера высланы обновленные данные по списку файлов");
                 } else {
                     ctx.writeAndFlush(request);
                 }
+                Thread.sleep(500);
             } else {
                 LOG.debug("Неверный логин или пароль");
                 ctx.writeAndFlush(request);
@@ -75,8 +76,11 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
             LOG.debug("Файл {} получен", fm.getFileName());
         }
         if (msg instanceof ListFileRequest) {
-            ctx.writeAndFlush(new ListFileRequest(clientPath));
-            LOG.debug("С сервера высланы обновленные данные по списку файлов");
+            if(!isDirectoryEmpty(clientPath.toFile())) {
+                ctx.writeAndFlush(new ListFileRequest(clientPath));
+                LOG.debug("С сервера высланы обновленные данные по списку файлов");
+            }
+            LOG.debug("Каталог пустой!");
         }
         if (msg instanceof FileRequest) {
             FileRequest fr = (FileRequest) msg;
@@ -136,5 +140,10 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
             e.printStackTrace();
         }
         return count >= 1;
+    }
+
+    public boolean isDirectoryEmpty(File directory) {
+        String[] files = directory.list();
+        return files.length == 0;
     }
 }
