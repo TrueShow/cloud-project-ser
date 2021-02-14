@@ -46,7 +46,6 @@ public class AuthController {
                         openNewScene("/mainLayout.fxml");
                         LOG.debug("Открыта новая сцена mainLayout");
                         network.close();
-
                     });
                 } else {
                     Platform.runLater(() -> {

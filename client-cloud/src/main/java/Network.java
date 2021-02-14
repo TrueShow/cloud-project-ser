@@ -21,7 +21,7 @@ public class Network {
 
     public static Network getInstance(Callback callback) {
         if (network == null) {
-            return new Network(callback);
+            network = new Network(callback);
         }
         return network;
     }

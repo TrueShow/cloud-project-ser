@@ -36,13 +36,13 @@ public class RegisterController {
             if (msg instanceof RegisterMsg) {
                 RegisterMsg register = (RegisterMsg) msg;
                 if (register.isExist()) {
-                    Platform.runLater(()-> {
+                    Platform.runLater(() -> {
                         textField.setText("Login exists! Enter another Login");
                     });
                 } else {
-                    Platform.runLater(()-> {
-                        LOG.debug("Пользователь зарегистрирован {}", register.getUserName());
+                    Platform.runLater(() -> {
                         registerButton.getScene().getWindow().hide();
+                        LOG.debug("Пользователь зарегистрирован {}", register.getUserName());
                         network.close();
                     });
                 }
@@ -56,7 +56,7 @@ public class RegisterController {
             String lastName = lastNameField.getText();
 
             if (login.equals("") || password.equals("") || firsName.equals("") || lastName.equals("")) {
-                Platform.runLater(()-> {
+                Platform.runLater(() -> {
                     textField.setText("Fields don't be empty");
                 });
             }

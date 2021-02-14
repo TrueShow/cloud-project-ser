@@ -15,10 +15,14 @@ public class ListFileRequest extends AbstractMessage {
     public ListFileRequest(Path path) {
 
         try {
+//            list = Files.list(path)
+//                    .map(Path::getFileName)
+//                    .map(Path::toString)
+//                    .collect(Collectors.toList());
+
             list = Files.list(path)
-                    .map(Path::getFileName)
                     .filter(Files::isRegularFile)
-                    .map(Path::toString)
+                    .map(p -> p.getFileName().toString())
                     .collect(Collectors.toList());
         } catch (IOException e) {
             e.printStackTrace();

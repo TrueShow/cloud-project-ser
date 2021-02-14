@@ -51,7 +51,7 @@ public class Controller {
                     ListFileRequest lfr = (ListFileRequest) msg;
                     Platform.runLater(() -> {
                         filesListCloud.getItems().clear();
-                        filesListCloud.getItems().addAll(lfr.getList().toString());
+                        filesListCloud.getItems().addAll(lfr.getList());
                     });
                     LOG.debug("Список файлов обновлен");
                 }
@@ -77,11 +77,7 @@ public class Controller {
             }
             ReferenceCountUtil.release(msg);
         });
-        try {
-            Thread.sleep(500); //как обойти данный вариант?
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         network.sendObj(new ListFileRequest());
         LOG.debug("Запрос на обновление листа отправлен (при старте сервера)");
         browseFile.setOnAction(e -> {
@@ -98,13 +94,6 @@ public class Controller {
             } else {
                 LOG.debug("Соединение с сервером не установлено...");
             }
-        });
-
-        disconnectButton.setOnAction(e -> {
-            if (network != null) {
-                network.close();
-                LOG.debug("Соединение с сервером остановлено");
-            } else LOG.debug("Соединение с сервером не установно...");
         });
 
         deleteButton.setOnAction(e -> {
@@ -142,5 +131,20 @@ public class Controller {
                 LOG.debug("Файл не обновляется, нет подключения к серверу");
             }
         });
+    }
+    public void openNewScene(String window) {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource(window));
+
+        try {
+            loader.load();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+
+        Parent root = loader.getRoot();
+        Stage stage = new Stage();
+        stage.setScene(new Scene(root));
+        stage.showAndWait();
     }
 }

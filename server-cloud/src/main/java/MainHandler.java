@@ -26,12 +26,7 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         cnt++;
-//        clientNick = "user" + cnt;
-//        clientPath = Paths.get("server_repo", clientNick);
         LOG.debug("Клиент подключился, подключено - {} клиентов", cnt);
-//        if (!Files.exists((clientPath))) {
-//            Files.createDirectory(clientPath);
-//        }
         if (DbHandler.getConn() == null) {
             DbHandler.connect();
         }
@@ -43,6 +38,7 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
         if (msg instanceof AuthRequest) {
             AuthRequest request = (AuthRequest) msg;
             String login = request.getLogin().trim();
+            LOG.debug("Прилетел запрос на авторизацию с логина {}", login);
             String password = request.getPassword().trim();
             clientNick = login;
             if (!login.equals("") && !password.equals("")) {
@@ -56,66 +52,65 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
                     if (!Files.exists((clientPath))) {
                         Files.createDirectory(clientPath);
                     }
-                    LOG.debug("authOk установлен");
                     ctx.writeAndFlush(request);
-                    LOG.debug("С сервера высланы обновленные данные по списку файлов");
+                    LOG.debug("Пользователь с ником {} подтверждем", clientNick);
                 } else {
                     ctx.writeAndFlush(request);
                 }
-                Thread.sleep(500);
             } else {
                 LOG.debug("Неверный логин или пароль");
                 ctx.writeAndFlush(request);
             }
         }
-        LOG.debug("Прилетел запрос, объект - {}", msg.getClass());
         if (msg instanceof FileMessage) {
+
             FileMessage fm = (FileMessage) msg;
-            LOG.debug("Это файл с именем {}", fm.getFileName());
+            LOG.debug("Прилетел запрос на сохранение файла {}", fm.getFileName());
             Files.write(clientPath.resolve(fm.getFileName()), fm.getData());
             LOG.debug("Файл {} получен", fm.getFileName());
         }
         if (msg instanceof ListFileRequest) {
-            if(!isDirectoryEmpty(clientPath.toFile())) {
-                ctx.writeAndFlush(new ListFileRequest(clientPath));
-                LOG.debug("С сервера высланы обновленные данные по списку файлов");
-            }
-            LOG.debug("Каталог пустой!");
+            LOG.debug("Прилетел запрос на обновление файла в сетевой папке");
+            ctx.writeAndFlush(new ListFileRequest(clientPath));
+            LOG.debug("С сервера высланы обновленные данные по списку файлов");
         }
         if (msg instanceof FileRequest) {
             FileRequest fr = (FileRequest) msg;
+            LOG.debug("Прилетел запрос на загрузку файла {}", fr.getFilename());
             if (!fr.isDelete()) {
                 if (Files.exists(Paths.get("server_repo", clientNick, fr.getFilename()))) {
                     FileMessage fm = new FileMessage(Paths.get("server_repo", clientNick, fr.getFilename()));
                     ctx.writeAndFlush(fm);
                     LOG.debug("Файл {} отправлен", fm.getFileName());
-
                 } else {
                     LOG.debug("Запрошенного файла {} нет!", fr.getFilename());
                 }
             } else {
+                LOG.debug("Прилетел запрос на удаление файла {}", fr.getFilename());
                 if (Files.exists(Paths.get("server_repo", clientNick, fr.getFilename()))) {
                     Files.delete(Paths.get("server_repo", clientNick, fr.getFilename()));
                     LOG.debug("Файл {} удален", fr.getFilename());
                 } else {
-                    LOG.debug("Запрошенного файла {} нет!", fr.getFilename());
+                    LOG.debug("Запрошенного на удаление файла {} нет!", fr.getFilename());
                 }
             }
         }
         if (msg instanceof RegisterMsg) {
+
             RegisterMsg register = (RegisterMsg) msg;
             String login = register.getUserName();
+            LOG.debug("Прилетел запрос на регистрацию нового пользователя с логином {}", login);
             String password = register.getPassword();
             String firstName = register.getFirstName();
             String lastName = register.getLastName();
             User user = new User(firstName, lastName, login, password);
             if (checkUser(user)) {
-                LOG.debug("логин и пароль есть в БД");
+                LOG.debug("Пользователь с логином {} уже зергистриован в системе", user.getUserName());
                 register.setExist(true);
                 ctx.writeAndFlush(register);
             } else {
                 db.registerNewUser(user);
-                LOG.debug("Новый пользователей зарегистрирован");
+                LOG.debug("Новый пользователь {} зарегистрирован", user.getUserName());
                 ctx.writeAndFlush(register);
             }
         }
@@ -140,10 +135,5 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
             e.printStackTrace();
         }
         return count >= 1;
-    }
-
-    public boolean isDirectoryEmpty(File directory) {
-        String[] files = directory.list();
-        return files.length == 0;
     }
 }
