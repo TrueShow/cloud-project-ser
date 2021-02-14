@@ -40,16 +40,17 @@ public class AuthController {
         network = Network.getInstance(msg -> {
             if (msg instanceof AuthRequest) {
                 AuthRequest request = (AuthRequest) msg;
+                LOG.debug("Получен статус по логину {} на авторизацию", request.getLogin());
                 if (request.isAuthOk()) {
                     Platform.runLater(() -> {
                         authLoginButton.getScene().getWindow().hide();
                         openNewScene("/mainLayout.fxml");
                         LOG.debug("Открыта новая сцена mainLayout");
-                        network.close();
                     });
                 } else {
                     Platform.runLater(() -> {
                         textField.setText("Invalid login or password");
+                        LOG.debug("введенный логин {} или пароль неверные", request.getLogin());
                         Shake userLoginAnim = new Shake(authLoginField);
                         Shake userPassAnim = new Shake(authPassField);
                         userLoginAnim.playAnim();
@@ -63,13 +64,13 @@ public class AuthController {
             String login = authLoginField.getText();
             String password = authPassField.getText();
             network.sendObj(new AuthRequest(login, password));
-            LOG.debug("Запрос с логином и паролем отправлен");
+            LOG.debug("Направлен запрос на авторизацию по логину {} и паролю", login);
         });
         newUserButton.setOnAction(e -> {
             Platform.runLater(() -> {
                 openNewScene("/registerForm.fxml");
+                LOG.debug("Открыта новая сцена registerForm");
             });
-            LOG.debug("Открыта новая сцена registerForm");
         });
     }
 

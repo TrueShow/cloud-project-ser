@@ -12,6 +12,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,9 +25,6 @@ public class Controller {
 
     @FXML
     public Button deleteButton;
-
-    @FXML
-    public Button disconnectButton;
 
     @FXML
     public ListView<String> filesListCloud;
@@ -52,8 +50,8 @@ public class Controller {
                     Platform.runLater(() -> {
                         filesListCloud.getItems().clear();
                         filesListCloud.getItems().addAll(lfr.getList());
+                        LOG.debug("Список файлов обновлен");
                     });
-                    LOG.debug("Список файлов обновлен");
                 }
                 if (msg instanceof FileMessage) {
                     FileMessage fm = (FileMessage) msg;
@@ -62,7 +60,7 @@ public class Controller {
                             FileChooser fc = new FileChooser();
                             fc.setInitialFileName(fm.getFileName());
                             File file = fc.showSaveDialog(new Stage());
-                            LOG.debug("Запрос на сохранение файл {}", fm.getFileName());
+                            LOG.debug("Запрос на сохранение файла {}", fm.getFileName());
                             if (file != null) {
                                 file = new File(file.getAbsolutePath());
                                 Files.write(Paths.get(file.getAbsolutePath()), fm.getData(), StandardOpenOption.CREATE);
@@ -77,9 +75,9 @@ public class Controller {
             }
             ReferenceCountUtil.release(msg);
         });
-
         network.sendObj(new ListFileRequest());
         LOG.debug("Запрос на обновление листа отправлен (при старте сервера)");
+
         browseFile.setOnAction(e -> {
             getTheUserFilePath();
         });
@@ -88,7 +86,7 @@ public class Controller {
             if (network != null) {
                 FileMessage fm = new FileMessage(pathToFile.getText());
                 network.sendObj(fm);
-                LOG.debug("Файл отправлен - {}", fm.getFileName());
+                LOG.debug("Запрос на загрузку файла {} направлен", fm.getFileName());
                 pathToFile.clear();
                 refreshStorageFilesList();
             } else {
@@ -99,13 +97,14 @@ public class Controller {
         deleteButton.setOnAction(e -> {
             String fileSelected = filesListCloud.getSelectionModel().getSelectedItem();
             network.sendObj(new FileRequest(fileSelected, true));
-
+            LOG.debug("Запрос на удаление файла направлен");
             refreshStorageFilesList();
         });
 
         downloadSelectedFile.setOnAction(e -> {
             String fileSelected = filesListCloud.getSelectionModel().getSelectedItem();
             network.sendObj(new FileRequest(fileSelected, false));
+            LOG.debug("Запрос на загрузку файла направлен");
         });
     }
 
@@ -123,28 +122,11 @@ public class Controller {
     public void refreshStorageFilesList() {
         Platform.runLater(() -> {
             if (network.getChannel().isActive()) {
-                filesListCloud.getItems().clear();
                 network.sendObj(new ListFileRequest());
                 LOG.debug("Запрос на обновление листа отправлен");
-
             } else {
                 LOG.debug("Файл не обновляется, нет подключения к серверу");
             }
         });
-    }
-    public void openNewScene(String window) {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource(window));
-
-        try {
-            loader.load();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-
-        Parent root = loader.getRoot();
-        Stage stage = new Stage();
-        stage.setScene(new Scene(root));
-        stage.showAndWait();
     }
 }

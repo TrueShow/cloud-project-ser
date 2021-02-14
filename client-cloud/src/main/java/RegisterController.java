@@ -1,3 +1,4 @@
+import animation.Shake;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -43,7 +44,6 @@ public class RegisterController {
                     Platform.runLater(() -> {
                         registerButton.getScene().getWindow().hide();
                         LOG.debug("Пользователь зарегистрирован {}", register.getUserName());
-                        network.close();
                     });
                 }
             }
@@ -57,7 +57,7 @@ public class RegisterController {
 
             if (login.equals("") || password.equals("") || firsName.equals("") || lastName.equals("")) {
                 Platform.runLater(() -> {
-                    textField.setText("Fields don't be empty");
+                    textField.setText("Fields should not be empty");
                 });
             }
 

@@ -64,8 +64,10 @@ public class Network {
     }
 
     public void close() {
-        if (channel.isActive())
+        if (channel.isActive()) {
             channel.close();
+            LOG.debug("Канал клиент Netty закрыт");
+        }
         else LOG.debug("Соединение не установлено");
     }
 
